@@ -32,10 +32,11 @@ pipeline {
             }
 
         }
-        post{
+        
+    }
+    post{
             always{
                 junit 'test-results/junits.xml'
             }
         }
-    }
 }
