@@ -31,6 +31,7 @@ pipeline {
                 sh ''' 
                 npm insatll serve
                 node_modules/.bin/serve -s build
+                sleep 10
                 npx playwright test
                 '''
             }
