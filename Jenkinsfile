@@ -63,25 +63,12 @@ pipeline {
             steps {
                 sh '''
                 npm install netlify-cli
-                netlify --version
+                node_modules/.bin/netlify --version
                 '''
             }
         }
 
     }
 
-    post {
-        always {
-            junit 'jest-results/*.xml'
-
-            publishHTML([
-                allowMissing: false,
-                alwaysLinkToLastBuild: false,
-                keepAll: false,
-                reportDir: 'playwright-report',
-                reportFiles: 'index.html',
-                reportName: 'Playwright HTML Report'
-            ])
-        }
-    }
+    
 }
