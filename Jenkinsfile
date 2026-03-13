@@ -19,6 +19,13 @@ pipeline {
                         npm test
                         '''
                     }
+                    post {
+        always {
+            junit 'jest-results/*.xml'
+
+            
+        }
+    }
                 }
 
                 stage('E2E') {
@@ -36,14 +43,7 @@ pipeline {
                         npx playwright test --reporter=html
                         '''
                     }
-                }
-
-            }
-        }
-
-    }
-
-    post {
+                    post {
         always {
             junit 'jest-results/*.xml'
 
@@ -57,4 +57,12 @@ pipeline {
             ])
         }
     }
+                }
+
+            }
+        }
+
+    }
+
+    
 }
