@@ -45,8 +45,7 @@ pipeline {
                     }
                     post {
         always {
-            junit 'jest-results/*.xml'
-
+            
             publishHTML([
                 allowMissing: false,
                 alwaysLinkToLastBuild: false,
