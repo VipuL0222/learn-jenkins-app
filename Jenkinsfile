@@ -92,6 +92,11 @@ pipeline {
                 '''
             }
         }
+        stage('Approval'){
+            steps{
+                input message: 'Do You wish to deploy to production?', ok: 'Yes ,I am sure!'
+            }
+        }
 
         stage('Deploy Prod') {
             agent{
