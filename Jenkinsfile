@@ -6,7 +6,7 @@ pipeline {
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
     }
 
-
+    stages {
 
         stage('Build') {
             agent {
@@ -53,8 +53,7 @@ pipeline {
             steps {
                 sh '''
                 npm ci
-                
-                 serve -s build &
+                npx serve -s build &
                 sleep 10
                 npx playwright test --reporter=html
                 '''
@@ -85,16 +84,19 @@ pipeline {
             steps {
                 sh '''
                 npm ci
-                
+                npm install netlify-cli node-jq
+
                 npx netlify --version
                 echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
                 npx netlify deploy --dir=build --json > deploy-output.json
                 '''
+
                 script {
                     env.STAGING_URL = sh(
                         script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
                         returnStdout: true
                     ).trim()
+
                     echo "Staging URL: ${env.STAGING_URL}"
                 }
             }
@@ -107,15 +109,18 @@ pipeline {
                     reuseNode true
                 }
             }
+
             environment {
                 CI_ENVIRONMENT_URL = "${env.STAGING_URL}"
             }
+
             steps {
                 sh '''
                 npm ci
                 npx playwright test --reporter=html
                 '''
             }
+
             post {
                 always {
                     junit 'jest-results/*.xml'
@@ -147,13 +152,15 @@ pipeline {
                     reuseNode true
                 }
             }
+
             steps {
                 sh '''
                 npm ci
-                
-                netlify --version
+                npm install netlify-cli
+
+                npx netlify --version
                 echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                 netlify status
+                npx netlify status
                 npx netlify deploy --dir=build --prod
                 '''
             }
@@ -166,15 +173,18 @@ pipeline {
                     reuseNode true
                 }
             }
+
             environment {
                 CI_ENVIRONMENT_URL = 'https://wonderful-dieffenbachia-81a823.netlify.app'
             }
+
             steps {
                 sh '''
                 npm ci
                 npx playwright test --reporter=html
                 '''
             }
+
             post {
                 always {
                     junit 'jest-results/*.xml'
@@ -190,5 +200,6 @@ pipeline {
                 }
             }
         }
+
     }
 }
