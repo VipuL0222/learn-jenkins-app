@@ -58,8 +58,8 @@ pipeline {
             steps {
                 sh '''
                 npm ci
-                npm install serve
-                npx serve -s build &
+                
+                 serve -s build &
                 sleep 10
                 npx playwright test --reporter=html
                 '''
@@ -90,7 +90,7 @@ pipeline {
             steps {
                 sh '''
                 npm ci
-                npm install netlify-cli@20.1.1 node-jq
+                
                 npx netlify --version
                 echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
                 npx netlify deploy --dir=build --json > deploy-output.json
@@ -155,10 +155,10 @@ pipeline {
             steps {
                 sh '''
                 npm ci
-                npm install netlify-cli@20.1.1
-                npx netlify --version
+                
+                netlify --version
                 echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                npx netlify status
+                 netlify status
                 npx netlify deploy --dir=build --prod
                 '''
             }
