@@ -58,19 +58,28 @@ pipeline {
         stage('Deploy staging') {
             agent {
                 docker {
-                    image 'node:18-alpine'
+                    image 'my-playwright'
                     reuseNode true
                 }
             }
             steps {
                 sh '''
                 npm ci
-                npm install netlify-cli node-jq
-                npx netlify deploy --dir=build --json > deploy-output.json
+
+                echo "Deploying to staging..."
+
+                npx netlify deploy \
+                  --dir=build \
+                  --json \
+                  --auth=$NETLIFY_AUTH_TOKEN \
+                  --site=$NETLIFY_SITE_ID > deploy-output.json
+
+                cat deploy-output.json
                 '''
+
                 script {
                     env.STAGING_URL = sh(
-                        script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
+                        script: "cat deploy-output.json | jq -r '.deploy_url'",
                         returnStdout: true
                     ).trim()
                 }
@@ -89,6 +98,7 @@ pipeline {
             }
             steps {
                 sh '''
+                echo "Testing staging URL: $CI_ENVIRONMENT_URL"
                 npm ci
                 npx playwright test --reporter=html
                 '''
@@ -106,15 +116,21 @@ pipeline {
         stage('Deploy Prod') {
             agent {
                 docker {
-                    image 'node:18-alpine'
+                    image 'my-playwright'
                     reuseNode true
                 }
             }
             steps {
                 sh '''
                 npm ci
-                npm install netlify-cli
-                npx netlify deploy --dir=build --prod
+
+                echo "Deploying to production..."
+
+                npx netlify deploy \
+                  --dir=build \
+                  --prod \
+                  --auth=$NETLIFY_AUTH_TOKEN \
+                  --site=$NETLIFY_SITE_ID
                 '''
             }
         }
@@ -131,6 +147,7 @@ pipeline {
             }
             steps {
                 sh '''
+                echo "Testing production URL: $CI_ENVIRONMENT_URL"
                 npm ci
                 npx playwright test --reporter=html
                 '''
